@@ -1,0 +1,210 @@
+{
+	"info": {
+		"_postman_id": "699a177b-9f46-4ca0-b757-39a4ac13104e",
+		"name": "DTT Back end assessment – Catering API",
+		"description": "The Postman collection for the DTT backend assessment test: Catering API.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16338809"
+	},
+	"item": [
+		{
+			"name": "Search facility",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/API/web_backend_test_catering_api/facilities/search?q=BBQ",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"API",
+						"web_backend_test_catering_api",
+						"facilities",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "BBQ"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find facility by Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/API/web_backend_test_catering_api/facilities/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"API",
+						"web_backend_test_catering_api",
+						"facilities",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find all facilities",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/API/web_backend_test_catering_api/facilities/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"API",
+						"web_backend_test_catering_api",
+						"facilities",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create facility",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "name",
+							"value": "Lunch Catering",
+							"type": "text"
+						},
+						{
+							"key": "location_id",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "tags",
+							"value": "Soep,Sandwiches,Wraps",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost/API/web_backend_test_catering_api/facilities",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"API",
+						"web_backend_test_catering_api",
+						"facilities"
+					]
+				},
+				"description": "Creates a facility..."
+			},
+			"response": []
+		},
+		{
+			"name": "Update facility",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "name",
+							"value": "Wedding Catering",
+							"type": "text"
+						},
+						{
+							"key": "location_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "tags",
+							"value": "Soep,Sandwiches,Taart",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost/API/web_backend_test_catering_api/facilities/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"API",
+						"web_backend_test_catering_api",
+						"facilities",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete facility",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost/API/web_backend_test_catering_api/facilities/4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"API",
+						"web_backend_test_catering_api",
+						"facilities",
+						"4"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost/web_backend_test_catering_api",
+			"type": "string"
+		}
+	]
+}
