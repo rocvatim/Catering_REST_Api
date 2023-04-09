@@ -6,7 +6,7 @@ use App\Plugins\Di\Injectable;
 class BaseController extends Injectable {
 
     
-    public function createFacility()
+    public function createFacility() : void
     {
 
         //Collect the data for the facility that will be created
@@ -60,16 +60,17 @@ class BaseController extends Injectable {
         ]);
     }
 
-    public function facilityRequest(string $id): void
+    public function facilityRequest(string $id) : void
     {
-
+        // Return the facility associated with id
         $facility = new Facility;
         echo json_encode($facility->readOne($id));
 
     }
 
-    public function allFacilitiesRequest(): void
+    public function allFacilitiesRequest() : void
     {
+        //Return all facilities
         $facility = new Facility;
         echo json_encode($facility->readAll());
     }
@@ -83,7 +84,7 @@ class BaseController extends Injectable {
         $facility = new Facility;
         $facility->update($data['name'], $data['location_id'], $id);
 
-        // Delete existing tags for the facility
+        // Delete the junction between tags for the facility
         $junction = new Junction;
         $junction->delete($id);
 
@@ -96,7 +97,7 @@ class BaseController extends Injectable {
                 $tag = new Tag;
                 $result = $tag->find($newTag);
                 if (!$result) {
-                    // Insert a new tag and get its id
+                    // If no tag was found insert a new tag and get its id
                     $tagId = $tag->create($newTag);
                 } else {
                     // Use the existing tag ID
@@ -123,7 +124,9 @@ class BaseController extends Injectable {
         $facility = new Facility;
         $facility->delete($id);
 
-        echo json_encode("Record " . $id . " deleted succesfully");
+        echo json_encode([
+            "message" => "Record " . $id . " deleted succesfully"
+        ]);
     }
 
     public function searchFacilities() : void
@@ -131,8 +134,8 @@ class BaseController extends Injectable {
         // Retrieves the search query
         $searchQuery = $_GET['q'];
 
+        // Find all facilities that match with the search query
         $facility = new Facility;
-
         echo json_encode($facility->find($searchQuery));
     }
 

@@ -2,13 +2,11 @@
 
 namespace App\Controllers;
 
-use App\Controllers\FacilityController;
-
-class Tag extends FacilityController
+class Tag extends BaseController
 {
 
-    // the find function tries to find a tag with the passed through name in the database and returns the id otherwise it returns false
-    public function find($name)
+    // Find a tag by name
+    public function find($name) : int
     {
         $TagIDSql = "SELECT id FROM tag WHERE name = :name";
         $TagIDSql = $this->db->connection->prepare($TagIDSql);
@@ -17,7 +15,8 @@ class Tag extends FacilityController
         return $TagIDSql->fetchColumn();
     }
 
-    public function create($name)
+    // Create a new tag
+    public function create($name) : int
     {
         $TagSql = "INSERT INTO tag (name) VALUES (:name)";
         $bind = [':name' => $name];
