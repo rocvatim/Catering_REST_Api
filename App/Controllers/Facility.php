@@ -6,12 +6,22 @@ use PDO;
 
 class Facility extends BaseController
 {
+    public $id;
+    public $name;
+    public $location_id;
+
+    public function __construct($id, $name, $location_id)
+    {
+        $this->id = $id;
+        $this->name = $name;
+        $this->location_id = $location_id;
+    }
 
     // Return a facility that matches the id
     public function readOne($id) : array
     {
         $sql = "SELECT f.name, f.created_at, l.city, l.address, l.zip_code, l.country_code, l.phone_number,
-        (SELECT GROUP_CONCAT(t.name SEPARATOR ', ') FROM facility_tags ft 
+        (SELECT GROUP_CONCAT(t.name SEPARATOR ',') FROM facility_tags ft 
          INNER JOIN tag t ON ft.tag_id = t.id WHERE ft.facility_id = f.id) AS tags
          FROM facility f INNER JOIN location l ON f.location_id = l.id
          LEFT JOIN facility_tags ft ON f.id = ft.facility_id
@@ -23,6 +33,7 @@ class Facility extends BaseController
         $result->execute();
 
         $data = $result->fetch(PDO::FETCH_ASSOC);
+        $data['tags'] = explode(',', $data['tags']);
 
         return $data;
     }
@@ -50,10 +61,10 @@ class Facility extends BaseController
     }
 
     // Update a facility with data that was passed through
-    public function update($name, $location_id, $id) : void
+    public function update() : void
     {
         $sql = "UPDATE facility SET name = :name, location_id = :location WHERE id = :id";
-        $bind = [":name" => $name, ":location" => $location_id, ":id" => $id];
+        $bind = [":name" => $this->name, ":location" => $this->location_id, ":id" => $this->id];
         $this->db->executeQuery($sql, $bind);
     }
 

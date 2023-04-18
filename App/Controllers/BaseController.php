@@ -81,11 +81,11 @@ class BaseController extends Injectable {
         parse_str(file_get_contents("php://input"), $data);
 
         // Update the facility
-        $facility = new Facility;
-        $facility->update($data['name'], $data['location_id'], $id);
+        $facility = new Facility($id,$data['name'],$data['location_id']);
+        $facility->update();
 
         // Delete the junction between tags for the facility
-        $junction = new Junction;
+        $junction = new FacilityTags;
         $junction->delete($id);
 
         // Insert new tags for the facility
@@ -105,12 +105,15 @@ class BaseController extends Injectable {
                 }
 
                 // Insert a new record into facility_tags that links the new facility with the tag
-                $junction = new Junction;
+                $junction = new FacilityTags;
                 $junction->create($id, $tagId);
             }
         }
 
-        echo json_encode("Record Updated Succesfully");
+        echo json_encode([
+            "Message" => "Record Updated Succesfully",
+            "Record" => $facility->readOne($id)
+        ]);
     }
 
     public function deleteFacility($id) : void

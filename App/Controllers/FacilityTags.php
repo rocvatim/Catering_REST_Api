@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-class Junction extends BaseController
+class FacilityTags extends BaseController
 {
     //Create a new junction between tags and a facility
     public function create($facility_id, $tag_id) : void

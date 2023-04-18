@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'dttmultimedia/web_backend_test_catering_api',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => NULL,
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => '694b86824c7cb13183e2471450451cd5bb1fda31',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -20,9 +20,9 @@
             'dev_requirement' => false,
         ),
         'dttmultimedia/web_backend_test_catering_api' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => NULL,
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '694b86824c7cb13183e2471450451cd5bb1fda31',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
