@@ -6,18 +6,28 @@ use PDO;
 
 class Facility extends BaseController
 {
-    public $id;
-    public $name;
-    public $location_id;
+    // public $id;
+    // public $name;
+    // public $location_id;
 
-    public function __construct($id, $name, $location_id)
-    {
-        $this->id = $id;
-        $this->name = $name;
-        $this->location_id = $location_id;
-    }
+    // public function __construct($id, $name, $location_id)
+    // {
+    //     $this->id = $id;
+    //     $this->name = $name;
+    //     $this->location_id = $location_id;
+    // }
 
     // Return a facility that matches the id
+
+    public function find($id) : int
+    {
+        $sql = "SELECT id FROM facility WHERE id = :id";
+        $sql = $this->db->connection->prepare($sql);
+        $sql->bindParam(":id", $id);
+        $sql->execute();
+        return $sql->fetchColumn();
+    }
+
     public function readOne($id) : array
     {
         $sql = "SELECT f.name, f.created_at, l.city, l.address, l.zip_code, l.country_code, l.phone_number,
@@ -25,24 +35,35 @@ class Facility extends BaseController
          INNER JOIN tag t ON ft.tag_id = t.id WHERE ft.facility_id = f.id) AS tags
          FROM facility f INNER JOIN location l ON f.location_id = l.id
          LEFT JOIN facility_tags ft ON f.id = ft.facility_id
-         WHERE f.id = $id;";
+         WHERE f.id = :id;";
 
         $data = [];
 
         $result = $this->db->connection->prepare($sql);
+        $result->bindParam(":id", $id);
         $result->execute();
 
         $data = $result->fetch(PDO::FETCH_ASSOC);
-        $data['tags'] = explode(',', $data['tags']);
 
-        return $data;
+        if ($data){
+            if ($data['tags']){
+                $data['tags'] = explode(',', $data['tags']);
+            } else {
+                $data['tags'] = [];
+            }
+            return $data;
+        } else {
+            return ["Error" => "Facility not found"];
+        }
+
+         
     }
 
     // Return all facilities
     public function readAll() : array
     {
         $sql = "SELECT f.name, f.created_at, l.city, l.address, l.zip_code, l.country_code, l.phone_number,
-        (SELECT GROUP_CONCAT(t.name SEPARATOR ', ') FROM facility_tags ft 
+        (SELECT GROUP_CONCAT(t.name SEPARATOR ',') FROM facility_tags ft 
          INNER JOIN tag t ON ft.tag_id = t.id WHERE ft.facility_id = f.id) AS tags
          FROM facility f
          INNER JOIN location l ON f.location_id = l.id;";
@@ -54,6 +75,10 @@ class Facility extends BaseController
 
         // returns rows in a associate array while there are rows to return
         while ($row = $result->fetch(PDO::FETCH_ASSOC)){
+            // Seperate tags into a array
+            if ($row['tags']){
+                $row['tags'] = explode(',', $row['tags']);
+            }
             $data[] = $row;
         }
 
@@ -82,7 +107,7 @@ class Facility extends BaseController
     }
 
     // Find all facilities based on a search query
-    public function find($query) : array
+    public function search($query) : array
     {
         $sql = "SELECT f.id, f.name AS facility_name, f.created_at, l.city, l.address, l.zip_code, l.country_code, l.phone_number, GROUP_CONCAT(t.name SEPARATOR ', ') AS tags
         FROM facility f
@@ -97,7 +122,12 @@ class Facility extends BaseController
         $stmt->execute();
 
         //Fetch all facilities that match the search query and return them in a associative array
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // $result['tags'] = explode(',', $result['tags']);
+
+        return var_dump($result);
     }
 
     // Delete the facility by id

@@ -13,8 +13,7 @@ class BaseController extends Injectable {
         $data = [];
         parse_str(file_get_contents("php://input"), $data);
 
-        //Seperate tags string into a array
-        $data['tags'] = explode(',', $data['tags']);
+        
 
         //Check for errors
         $errors = $this->getValidationErrors($data);
@@ -33,21 +32,27 @@ class BaseController extends Injectable {
         $facilityID = $facility->create($data['name'],$data['location_id']);
         
         // Loop through the tags associated with the new facility
-        foreach ($data['tags'] as $tagName) {
-            // Check if the tag already exists in the tag table
-            $tag = new Tag();
-            $tagID = $tag->find($tagName);
+        if($data['tags']){
+            //Seperate tags string into a array
+            $data['tags'] = explode(',', $data['tags']);
 
-            // If the tag does not exist, insert a new record into the tag table
-            if (!$tagID) {
-                $tagID = $tag->create($tagName);
+            foreach ($data['tags'] as $tagName) {
+                // Check if the tag already exists in the tag table
+                $tag = new Tag();
+                $tagID = $tag->find($tagName);
+    
+                // If the tag does not exist, insert a new record into the tag table
+                if (!$tagID) {
+                    $tagID = $tag->create($tagName);
+                }
+    
+                // Insert a new record into facility_tags that links the new facility with the tag
+                $junction = new FacilityTags;
+                $junction->create($facilityID, $tagID);
+    
             }
-
-            // Insert a new record into facility_tags that links the new facility with the tag
-            $junction = new Junction;
-            $junction->create($facilityID, $tagID);
-
         }
+        
         
         // Commit the transaction
         $this->db->commit();
@@ -118,18 +123,24 @@ class BaseController extends Injectable {
 
     public function deleteFacility($id) : void
     {
-
-        // Delete junction between facilty and tags associated with the facility
-        $junction = new Junction;
-        $junction->delete($id);
-
-        // Delete the facility itself
         $facility = new Facility;
-        $facility->delete($id);
+        if ($facility->find($id)){
+            // Delete the facility itself
+            $facility->delete($id);
+            echo json_encode([
+                "message" => "Record " . $id . " deleted succesfully"
+            ]);
+        } else {
+            echo json_encode([
+                "Error" => "Record " . $id . " was not found"
+            ]);
+        }
+        
 
-        echo json_encode([
-            "message" => "Record " . $id . " deleted succesfully"
-        ]);
+        
+        
+
+        
     }
 
     public function searchFacilities() : void
@@ -139,7 +150,7 @@ class BaseController extends Injectable {
 
         // Find all facilities that match with the search query
         $facility = new Facility;
-        echo json_encode($facility->find($searchQuery));
+        echo json_encode($facility->search($searchQuery));
     }
 
     //Checks if all required data is passed through
