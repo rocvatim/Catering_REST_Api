@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controllers;
+namespace App\API;
 
-class Tag extends BaseController
+class Tag extends Injectable
 {
 
     // Find a tag by name

@@ -3,6 +3,8 @@ namespace App\Controllers;
 
 use App\Plugins\Di\Injectable;
 
+use App\API\Facility;
+
 class BaseController extends Injectable {
 
     
@@ -146,11 +148,27 @@ class BaseController extends Injectable {
     public function searchFacilities() : void
     {
         // Retrieves the search query
-        $searchQuery = $_GET['q'];
+        if (isset($_GET['name'])){
+            $nameQuery = $_GET['name'];
+        } else {
+            $nameQuery = null;
+        }
+        
+        if (isset($_GET['city'])){
+            $cityQuery = $_GET['city'];
+        } else {
+            $cityQuery = null;
+        }
+        
+        if (isset($_GET['tag'])){
+            $tagQuery = $_GET['tag'];
+        } else {
+            $tagQuery = null;
+        }
 
         // Find all facilities that match with the search query
         $facility = new Facility;
-        echo json_encode($facility->search($searchQuery));
+        echo json_encode($facility->search($nameQuery,$cityQuery,$tagQuery));
     }
 
     //Checks if all required data is passed through

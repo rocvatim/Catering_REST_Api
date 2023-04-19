@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Controllers;
+namespace App\API;
 
+use App\Plugins\Di\Injectable;
 use PDO;
 
-class Facility extends BaseController
+class Facility extends Injectable
 {
     // public $id;
     // public $name;
@@ -35,18 +36,19 @@ class Facility extends BaseController
          INNER JOIN tag t ON ft.tag_id = t.id WHERE ft.facility_id = f.id) AS tags
          FROM facility f INNER JOIN location l ON f.location_id = l.id
          LEFT JOIN facility_tags ft ON f.id = ft.facility_id
-         WHERE f.id = :id;";
+         WHERE f.id = :id";
 
         $data = [];
 
         $result = $this->db->connection->prepare($sql);
-        $result->bindParam(":id", $id);
+        $result->bindParam(":id", $id, PDO::PARAM_INT);
         $result->execute();
 
         $data = $result->fetch(PDO::FETCH_ASSOC);
 
         if ($data){
             if ($data['tags']){
+                var_dump($data['tags']);
                 $data['tags'] = explode(',', $data['tags']);
             } else {
                 $data['tags'] = [];
@@ -62,7 +64,7 @@ class Facility extends BaseController
     // Return all facilities
     public function readAll() : array
     {
-        $sql = "SELECT f.name, f.created_at, l.city, l.address, l.zip_code, l.country_code, l.phone_number,
+        $sql = "SELECT f.id, f.name, f.created_at, l.city, l.address, l.zip_code, l.country_code, l.phone_number,
         (SELECT GROUP_CONCAT(t.name SEPARATOR ',') FROM facility_tags ft 
          INNER JOIN tag t ON ft.tag_id = t.id WHERE ft.facility_id = f.id) AS tags
          FROM facility f
@@ -107,27 +109,49 @@ class Facility extends BaseController
     }
 
     // Find all facilities based on a search query
-    public function search($query) : array
+    public function search($name,$city,$tag) : array
     {
-        $sql = "SELECT f.id, f.name AS facility_name, f.created_at, l.city, l.address, l.zip_code, l.country_code, l.phone_number, GROUP_CONCAT(t.name SEPARATOR ', ') AS tags
+        $sql = "SELECT f.id, f.name AS facility_name, f.created_at, l.city, l.address, l.zip_code, l.country_code, l.phone_number, GROUP_CONCAT(t.name) AS tags
         FROM facility f
         INNER JOIN location l ON f.location_id = l.id
         LEFT JOIN facility_tags ft ON f.id = ft.facility_id
-        LEFT JOIN tag t ON ft.tag_id = t.id
-        WHERE f.name LIKE :searchQuery OR t.name LIKE :searchQuery OR l.city LIKE :searchQuery
-        GROUP BY f.id";
+        LEFT JOIN tag t ON ft.tag_id = t.id";
+
+        $whereClauses = [];
+        $params = array();
+
+        if ($name) {
+            $whereClauses[] .= "f.name LIKE :name";
+            $params[":name"] = '%' . $name . '%';
+        }
+
+        if ($tag) {
+            $whereClauses[] .= "t.name LIKE :tag";
+            $params[":tag"] =  '%' . $tag . '%';
+        }
+
+        if ($city) {
+            $whereClauses[] .= "l.city LIKE :city";
+            $params[":city"] = '%' . $city . '%';
+        }
+
+
+        if (!empty($whereClauses)) {
+            $sql .= " WHERE " . implode(" AND ", $whereClauses);
+            
+        }
+
+        $sql .= " GROUP BY f.id";
 
         $stmt = $this->db->connection->prepare($sql);
-        $stmt->bindValue(':searchQuery', '%' . $query . '%', PDO::PARAM_STR);
-        $stmt->execute();
+        $stmt->execute($params);
 
         //Fetch all facilities that match the search query and return them in a associative array
-        
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $results[] = $result;
+        }
 
-        // $result['tags'] = explode(',', $result['tags']);
-
-        return var_dump($result);
+        return $results;
     }
 
     // Delete the facility by id

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controllers;
+namespace App\API;
 
-class FacilityTags extends BaseController
+class FacilityTags extends Injectable
 {
     //Create a new junction between tags and a facility
     public function create($facility_id, $tag_id) : void
