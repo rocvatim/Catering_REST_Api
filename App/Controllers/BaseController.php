@@ -4,6 +4,8 @@ namespace App\Controllers;
 use App\Plugins\Di\Injectable;
 
 use App\API\Facility;
+use App\API\FacilityTags;
+use App\API\Tag;
 
 class BaseController extends Injectable {
 
@@ -29,49 +31,62 @@ class BaseController extends Injectable {
         //Begin transaction to ensure that all statements are executed or none are
         $this->db->beginTransaction();
 
-        //Insert a new facility
-        $facility = new Facility;
-        $facilityID = $facility->create($data['name'],$data['location_id']);
-        
-        // Loop through the tags associated with the new facility
-        if($data['tags']){
-            //Seperate tags string into a array
-            $data['tags'] = explode(',', $data['tags']);
+        // Check if the given location_id exists
+        $facility = new Facility($id = null,$data['name'],$data['location_id']);
+        $locationID = $facility->findLocation();
 
-            foreach ($data['tags'] as $tagName) {
-                // Check if the tag already exists in the tag table
-                $tag = new Tag();
-                $tagID = $tag->find($tagName);
-    
-                // If the tag does not exist, insert a new record into the tag table
-                if (!$tagID) {
-                    $tagID = $tag->create($tagName);
-                }
-    
-                // Insert a new record into facility_tags that links the new facility with the tag
-                $junction = new FacilityTags;
-                $junction->create($facilityID, $tagID);
-    
+        //Insert a new facility
+        if ($locationID){
+            $facilityID = $facility->create();
+
+            // Loop through the tags associated with the new facility
+            if ($data['tags']){
+                //Seperate tags string into a array
+                $data['tags'] = explode(',', $data['tags']);
+
+                foreach ($data['tags'] as $tagName) {
+                        // Check if the tag already exists in the tag table
+                        $tag = new Tag($id = null, $tagName);
+                        $tagID = $tag->find();
+            
+                        // If the tag does not exist, insert a new record into the tag table
+                        if (!$tagID) {
+                            $tagID = $tag->create();
+                        }
+            
+                        // Insert a new record into facility_tags that links the new facility with the tag
+                        $junction = new FacilityTags($facilityID,$tagID);
+                        $junction->create();
+        
+                    }
             }
+            // Commit the transaction
+            $this->db->commit();
+
+            // Return the Id of the new facility
+            http_response_code(201);
+            echo json_encode([
+                "message" => "Facility created",
+                "id" => $facilityID
+            ]);
+        } else {
+            echo json_encode([
+                "Error" => "Location Id was not found"
+            ]);
         }
         
         
-        // Commit the transaction
-        $this->db->commit();
-
-        // Return the Id of the new facility
-        http_response_code(201);
-        echo json_encode([
-            "message" => "Facility created",
-            "id" => $facilityID
-        ]);
+        
+        
+        
+        
     }
 
     public function facilityRequest(string $id) : void
     {
         // Return the facility associated with id
-        $facility = new Facility;
-        echo json_encode($facility->readOne($id));
+        $facility = new Facility($id);
+        echo json_encode($facility->readOne());
 
     }
 
@@ -92,8 +107,8 @@ class BaseController extends Injectable {
         $facility->update();
 
         // Delete the junction between tags for the facility
-        $junction = new FacilityTags;
-        $junction->delete($id);
+        $junction = new FacilityTags($id);
+        $junction->delete();
 
         // Insert new tags for the facility
         $tagsArr = explode(',', $data['tags']);
@@ -101,19 +116,19 @@ class BaseController extends Injectable {
             $newTag = trim($newTag);
             if (!empty($newTag)) {
                 // Check if the tag already exists
-                $tag = new Tag;
-                $result = $tag->find($newTag);
+                $tag = new Tag($tagId = null, $newTag);
+                $result = $tag->find();
                 if (!$result) {
                     // If no tag was found insert a new tag and get its id
-                    $tagId = $tag->create($newTag);
+                    $tagId = $tag->create();
                 } else {
                     // Use the existing tag ID
                     $tagId = $result;
                 }
 
                 // Insert a new record into facility_tags that links the new facility with the tag
-                $junction = new FacilityTags;
-                $junction->create($id, $tagId);
+                $junction  = new FacilityTags($id,$tagId);
+                $junction->create();
             }
         }
 
@@ -125,10 +140,10 @@ class BaseController extends Injectable {
 
     public function deleteFacility($id) : void
     {
-        $facility = new Facility;
-        if ($facility->find($id)){
+        $facility = new Facility($id);
+        if ($facility->findFacility()){
             // Delete the facility itself
-            $facility->delete($id);
+            $facility->delete();
             echo json_encode([
                 "message" => "Record " . $id . " deleted succesfully"
             ]);
@@ -167,8 +182,16 @@ class BaseController extends Injectable {
         }
 
         // Find all facilities that match with the search query
-        $facility = new Facility;
-        echo json_encode($facility->search($nameQuery,$cityQuery,$tagQuery));
+        $facility = new Facility();
+        $results = $facility->search($nameQuery,$cityQuery,$tagQuery);
+        if ($results) {
+            echo json_encode($results);
+        } else {
+            echo json_encode([
+                "Message" => "No matching facilities found"
+            ]);
+        }
+        
     }
 
     //Checks if all required data is passed through
