@@ -13,24 +13,32 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost/API/web_backend_test_catering_api/facilities/search?q=BBQ",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/facilities/search?city=lon",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
 					"path": [
-						"API",
-						"web_backend_test_catering_api",
 						"facilities",
 						"search"
 					],
 					"query": [
 						{
-							"key": "q",
-							"value": "BBQ"
+							"key": "name",
+							"value": "wedding",
+							"disabled": true
+						},
+						{
+							"key": "city",
+							"value": "lon"
+						},
+						{
+							"key": "tag",
+							"value": "patat",
+							"disabled": true
 						}
 					]
-				}
+				},
+				"description": "API call used to test local development environment and database connection.\n\nShould print _'Hello World!'_ if all is OK."
 			},
 			"response": []
 		},
@@ -40,16 +48,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost/API/web_backend_test_catering_api/facilities/2",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/facilities/1",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
 					"path": [
-						"API",
-						"web_backend_test_catering_api",
 						"facilities",
-						"2"
+						"1"
 					]
 				}
 			},
@@ -61,14 +66,11 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost/API/web_backend_test_catering_api/facilities/",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/facilities/",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
 					"path": [
-						"API",
-						"web_backend_test_catering_api",
 						"facilities",
 						""
 					]
@@ -86,30 +88,48 @@
 					"urlencoded": [
 						{
 							"key": "name",
-							"value": "Lunch Catering",
+							"value": "A facility that should be deleted",
 							"type": "text"
 						},
 						{
 							"key": "location_id",
-							"value": "3",
+							"value": "2",
 							"type": "text"
 						},
 						{
-							"key": "tags",
-							"value": "Soep,Sandwiches,Wraps",
+							"key": "tags[0]",
+							"value": "BBQ",
 							"type": "text"
+						},
+						{
+							"key": "tags[1]",
+							"value": "Tapas",
+							"type": "text"
+						},
+						{
+							"key": "tags[2]",
+							"value": "Salades",
+							"type": "text"
+						},
+						{
+							"key": "tags[3]",
+							"value": "Koude dranken",
+							"type": "text"
+						},
+						{
+							"key": "tags[4]",
+							"value": "",
+							"type": "text",
+							"disabled": true
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost/API/web_backend_test_catering_api/facilities",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/facilities",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
 					"path": [
-						"API",
-						"web_backend_test_catering_api",
 						"facilities"
 					]
 				},
@@ -136,23 +156,42 @@
 							"type": "text"
 						},
 						{
-							"key": "tags",
-							"value": "Soep,Sandwiches,Taart",
+							"key": "tags[0]",
+							"value": "Soep",
 							"type": "text"
+						},
+						{
+							"key": "tags[1]",
+							"value": "Sandwiches",
+							"type": "text"
+						},
+						{
+							"key": "tags[2]",
+							"value": "Patat",
+							"type": "text"
+						},
+						{
+							"key": "tags[3]",
+							"value": "",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "tags[4]",
+							"value": "",
+							"type": "text",
+							"disabled": true
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost/API/web_backend_test_catering_api/facilities/2",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/facilities/7",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
 					"path": [
-						"API",
-						"web_backend_test_catering_api",
 						"facilities",
-						"2"
+						"7"
 					]
 				}
 			},
@@ -164,14 +203,11 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost/API/web_backend_test_catering_api/facilities/4",
-					"protocol": "http",
+					"raw": "{{baseUrl}}/facilities/4",
 					"host": [
-						"localhost"
+						"{{baseUrl}}"
 					],
 					"path": [
-						"API",
-						"web_backend_test_catering_api",
 						"facilities",
 						"4"
 					]
