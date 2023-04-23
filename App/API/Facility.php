@@ -19,7 +19,6 @@ class Facility extends Injectable
     }
 
     // Return a facility that matches the id
-
     public function findFacility() : int
     {
         $sql = "SELECT id FROM facility WHERE id = :id";
@@ -29,6 +28,7 @@ class Facility extends Injectable
         return $sql->fetchColumn();
     }
 
+    // Return a location that matches the id
     public function findLocation() : int
     {
         $sql = "SELECT id FROM location WHERE id = :id";
@@ -38,6 +38,7 @@ class Facility extends Injectable
         return $sql->fetchColumn();
     }
 
+    // Finds a facility and its location and tags based on id
     public function readOne() : array
     {
         $sql = "SELECT f.id, f.name, f.created_at, l.city, l.address, l.zip_code, l.country_code, l.phone_number,
@@ -57,6 +58,7 @@ class Facility extends Injectable
         $row = $result->fetch(PDO::FETCH_ASSOC);
         $tags = new Tag($this->id);
 
+        // returns rows in a associate array while there are rows to return
         if ($row){
             $facility = array(
                 'id' => $row['id'],
@@ -145,8 +147,8 @@ class Facility extends Injectable
         $sql = "SELECT f.id, f.name AS facility_name, f.created_at, l.city, l.address, l.zip_code, l.country_code, l.phone_number, GROUP_CONCAT(t.name) AS tags
         FROM facility f
         INNER JOIN location l ON f.location_id = l.id
-        LEFT JOIN facility_tags ft ON f.id = ft.facility_id
-        LEFT JOIN tag t ON ft.tag_id = t.id";
+        INNER JOIN facility_tags ft ON f.id = ft.facility_id
+        INNER JOIN tag t ON ft.tag_id = t.id";
 
         $whereClauses = [];
         $params = array();
@@ -194,6 +196,7 @@ class Facility extends Injectable
                 'tags' => array()
             );
 
+            // Seperate the tags
             if ($row['tags']) {
                 $tags = explode(',', $row['tags']);
                 foreach ($tags as $index => $tag) {

@@ -41,9 +41,6 @@ class BaseController extends Injectable {
 
             // Loop through the tags associated with the new facility
             if ($data['tags']){
-                //Seperate tags string into a array
-                $data['tags'] = explode(',', $data['tags']);
-
                 foreach ($data['tags'] as $tagName) {
                         // Check if the tag already exists in the tag table
                         $tag = new Tag($id = null, $tagName);
@@ -84,10 +81,18 @@ class BaseController extends Injectable {
 
     public function facilityRequest(string $id) : void
     {
-        // Return the facility associated with id
         $facility = new Facility($id);
-        echo json_encode($facility->readOne());
 
+        // Check if the facility exists
+        if ($facility->findFacility()){
+            // Return the facility associated with id
+            echo json_encode($facility->readOne());
+        } else {
+            echo json_encode([
+                "Error" => "Facility " . $id . " was not found"
+            ]);
+        }
+        
     }
 
     public function allFacilitiesRequest() : void
@@ -102,19 +107,18 @@ class BaseController extends Injectable {
         $data = [];
         parse_str(file_get_contents("php://input"), $data);
 
-        // Update the facility
+        // Try to find the facility
         $facility = new Facility($id,$data['name'],$data['location_id']);
-        $facility->update();
+        if ($facility->findFacility()){
+            // Update the facility
+            $facility->update();
 
-        // Delete the junction between tags for the facility
-        $junction = new FacilityTags($id);
-        $junction->delete();
+            // Delete the junction between tags for the facility
+            $junction = new FacilityTags($id);
+            $junction->delete();
 
-        // Insert new tags for the facility
-        $tagsArr = explode(',', $data['tags']);
-        foreach ($tagsArr as $newTag) {
-            $newTag = trim($newTag);
-            if (!empty($newTag)) {
+            // Insert new tags for the facility
+            foreach ($data['tags'] as $newTag) {
                 // Check if the tag already exists
                 $tag = new Tag($tagId = null, $newTag);
                 $result = $tag->find();
@@ -130,14 +134,22 @@ class BaseController extends Injectable {
                 $junction  = new FacilityTags($id,$tagId);
                 $junction->create();
             }
-        }
 
-        echo json_encode([
-            "Message" => "Record Updated Succesfully",
-            "Record" => $facility->readOne($id)
-        ]);
+            echo json_encode([
+                "Message" => "Record Updated Succesfully",
+                "Record" => $facility->readOne($id)
+            ]);
+        } else {
+            echo json_encode([
+                "Error" => "Facility " . $id . " was not found"
+            ]);
+        }
+        
+
+        
     }
 
+    // Delete a facility that matches the id
     public function deleteFacility($id) : void
     {
         $facility = new Facility($id);
@@ -145,11 +157,11 @@ class BaseController extends Injectable {
             // Delete the facility itself
             $facility->delete();
             echo json_encode([
-                "message" => "Record " . $id . " deleted succesfully"
+                "message" => "Facility " . $id . " deleted succesfully"
             ]);
         } else {
             echo json_encode([
-                "Error" => "Record " . $id . " was not found"
+                "Error" => "Facility " . $id . " was not found"
             ]);
         }
         
@@ -159,7 +171,8 @@ class BaseController extends Injectable {
 
         
     }
-
+    
+    // Find all facilities that match with the search query(s)
     public function searchFacilities() : void
     {
         // Retrieves the search query
@@ -181,9 +194,10 @@ class BaseController extends Injectable {
             $tagQuery = null;
         }
 
-        // Find all facilities that match with the search query
+        
         $facility = new Facility();
         $results = $facility->search($nameQuery,$cityQuery,$tagQuery);
+        
         if ($results) {
             echo json_encode($results);
         } else {
