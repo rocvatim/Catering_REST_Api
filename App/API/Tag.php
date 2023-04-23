@@ -25,6 +25,7 @@ class Tag extends Injectable
         return $TagIDSql->fetchColumn();
     }
 
+    // Return all tags associated with a id
     public function readAll() : array
     {
         $sql = "SELECT t.id AS tag_id, t.name AS tag_name
